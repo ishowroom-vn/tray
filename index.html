@@ -364,7 +364,8 @@
                 <div class="row">
                     <div class="col-md-12">
                         <div class="form-group">
-                            <button type="button" class="btn btn-default" onclick="printHTML();">Print HTML</button>
+                            <!-- <button type="button" class="btn btn-default" onclick="printHTML();">Print</button> -->
+                            <button type="button" class="btn btn-default" onclick="load();">Refresh</button>
                             <!-- <button type="button" class="btn btn-default" onclick="printPDF();">Print PDF</button>
                             <button type="button" class="btn btn-default" onclick="printImage();">Print Image</button>
                             <button id="pxlDropBtn" type="button" class="btn btn-primary" onclick="printFileDrop(event);" data-type="pixel"></button>
@@ -376,10 +377,37 @@
                     <div class="col-md-12">
                         <div class="panel panel-default">
                             <div class="panel-body">
-
+                                <fieldset>
+                                    <div id="" class="">
+                                        <div class="row">
+                                            <table id="qridData">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="col-md-1">ID</th>
+                                                        <th class="col-md-2">Họ Tên</th>
+                                                        <th class="col-md-3">Chức Vụ</th> 
+                                                        <th class="col-md-4">Đơn vị</th>
+                                                        <th class="col-md-2">Action</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                </tbody>
+                                            </table>
+                                            <!-- <table id="qridData">
+                                            <tr>
+                                              <th class="col-md-3">Họ Tên</th>
+                                              <th class="col-md-3">Chức Vụ</th> 
+                                              <th class="col-md-4">Đơn vị</th>
+                                              <th class="col-md-2">Action</th>
+                                            </tr>
+                                          </table> -->
+                                        </div>
+                                       
+                                     </div> 
+                                </fieldset>
                                 <fieldset>
                                     <legend>Input Data</legend>
-
+                                   
                                     <div class="row">
                                         <div class="col-md-6">
 
@@ -402,7 +430,7 @@
                                                 <input type="text" id="organization" class="form-control pull-right" />
                                             </div>
 
-                                          
+                                            <button type="button" class="btn btn-default" onclick="printHTML();">Print</button>
                                         </div>
                                      
                                     </div>
@@ -2102,7 +2130,98 @@
     }
 
     /// Pixel Printers ///
+    function load() {
+        let number = 100;
+        let url = `https://api.qrcare.net/api/QRIDs?filter=%7B%22where%22:%7B%22sellerId%22:%22100010010880222%22,%22status%22:%22QRID_STATUS.ACTIVE%22%7D,%22fields%22:[%22id%22,%22ownerName%22,%22ownerPhoneNumber%22,%22private%22,%22metadata%22,
+                   %22imageUrls%22,%22status%22,%22sellerId%22,%22modified%22],%22limit%22:${number},%22order%22:%22modified+desc%22%7D`;
+        $.get(url, function( list ) {
+            localStorage.setItem("allData", JSON.stringify(list));
+            $("#qridData tbody").empty();
+            // $("table tbody").empty();
+          
+
+            for(let i = 0; i < list.length; i++) {
+
+                let data = list[i];
+    
+                if (data["metadata"]["vcard"]){
+                    let vcard = data["metadata"]["vcard"];
+                    $("#ownerName").val(data["ownerName"])
+                    $("#ownerTitle").val(vcard["title"])
+                    $("#organization").val(vcard["organization"])
+                    let a = data["ownerName"];
+                    let b = vcard["title"] || "";
+                    let c = vcard["organization"] || "";
+                    let id = data["id"].toString().substring(11);
+                    var str =`<tr style="border: 1px solid black;" id="${data["id"]}"> 
+                            <td style="border: 1px solid black;" class="col-md-1">${id}</td>
+                            <td style="border: 1px solid black;" class="col-md-3">${a}</td>
+                            <td style="border: 1px solid black;" class="col-md-2">${b}</td> 
+                            <td style="border: 1px solid black;" class="col-md-4">${c}</td> 
+                            <td style="border: 1px solid black;" class="col-md-1">
+                                <button type="button" class="btn btn-default" onclick="print(${data["id"]});">Print</button>
+                            </td>
+                            </tr>`
+                $("#qridData tbody").append(str);
+                // $("table tbody").append(str);
+
+            }
+
+            }
+            alert(`Đã cập nhật ${number} khách mới nhất`)
+
+        });
+    }
+    function print(id) {
+        let rs = localStorage.getItem("allData");
+        let arr = JSON.parse(rs);
+        let data = arr.find(i => i["id"] == id);
+        console.log('print', id, data);
+        console.log('print2',  rs[0], arr)
+        var config = getUpdatedConfig();
+        var opts = getUpdatedOptions(true);
+
+        let vcard = data["metadata"]["vcard"];
+        $("#ownerName").val(data["ownerName"])
+        $("#ownerTitle").val(vcard["title"])
+        $("#organization").val(vcard["organization"])
+        // alert( "Load was performed." + data["ownerName"] );
+        let a = data["ownerName"];
+        let b = vcard["title"] || "";
+        let c = vcard["organization"] || "";
+        var str =  getHTML(a,b,c);
+
+        var printData = [
+            {
+                type: 'pixel',
+                format: 'html',
+                flavor: 'plain',
+                data: str,
+                options: opts
+            }
+        ];
+        console.log(opts)
+        console.log('print', id, printData[0].data)
+        qz.print(config, printData).catch(displayError);
+    }
+    function getHTML(a,b,c) {
+        var str = '<html>' +
+            '<body>' +
+            '  <table style="font-family: serif; width: 100%">' +
+            '    <tr>' +
+            '      <td>' +
+            `        <div style="font-size:18px;font-weight: bold;margin-top:1px">${a}</div>` +
+            `        <div style="font-size:16px;font-weight: bold;margin-top:5px">${b}</div>` +
+            `        <div style="font-size:16px; margin-top:5px">${c}</div>` +
+            '      </td>' +
+            '  </table>' +
+            '</body>' +
+            '</html>';
+
+        return str;
+    }
     function printHTML() {
+       
         var config = getUpdatedConfig();
         var opts = getUpdatedOptions(true);
         let data = {
@@ -2110,18 +2229,7 @@
             title: $("#ownerTitle").val(),
             organization : $("#organization").val()
         }
-        var str =   '<html>' +
-                    '<body>' +
-                    '  <table style="font-family: serif; width: 100%">' +
-                    '    <tr>' +
-                    '      <td>' +
-                    `        <div style="font-size:20px;font-weight: bold;margin-top:5px">${data.ownerName}</div>` +
-                    `        <div style="font-size:18px;font-weight: bold;margin-top:10px">${data.title}</div>` +
-                    `        <div style="font-size:16px; margin-top:10px">${data.organization}</div>` +
-                    '      </td>' +
-                    '  </table>' +
-                    '</body>' +
-                    '</html>';
+        var str =  getHTML(data.ownerName, data.title, data.organization);
        
         var printData = [
             {
