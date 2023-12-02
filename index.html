@@ -365,7 +365,7 @@
                     <div class="col-md-12">
                         <div class="form-group">
                             <!-- <button type="button" class="btn btn-default" onclick="printHTML();">Print</button> -->
-                            <input type="number" min="0" max="200" value="50" id="numberRefres"/>
+                            <input type="number" min="0" max="200" value="20" id="numberRefres"/>
                             <button type="button" class="btn btn-default" onclick="load();">Refresh</button>
                             <!-- <button type="button" class="btn btn-default" onclick="printPDF();">Print PDF</button>
                             <button type="button" class="btn btn-default" onclick="printImage();">Print Image</button>
@@ -2160,7 +2160,7 @@
                             <td style="border: 1px solid black;" class="col-md-2">${b}</td> 
                             <td style="border: 1px solid black;" class="col-md-4">${c}</td> 
                             <td style="border: 1px solid black;" class="col-md-1">
-                                <button type="button" class="btn btn-default" onclick="print(${data["id"]});">Print</button>
+                                <button type="button" class="btn btn-primary" onclick="print(${data["id"]});">Print</button>
                             </td>
                             </tr>`
                 $("#qridData tbody").append(str);
