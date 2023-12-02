@@ -365,6 +365,7 @@
                     <div class="col-md-12">
                         <div class="form-group">
                             <!-- <button type="button" class="btn btn-default" onclick="printHTML();">Print</button> -->
+                            <input type="number" min="0" max="200" value="50" id="numberRefres"/>
                             <button type="button" class="btn btn-default" onclick="load();">Refresh</button>
                             <!-- <button type="button" class="btn btn-default" onclick="printPDF();">Print PDF</button>
                             <button type="button" class="btn btn-default" onclick="printImage();">Print Image</button>
@@ -2131,7 +2132,7 @@
 
     /// Pixel Printers ///
     function load() {
-        let number = 100;
+        let number = $("#numberRefres").val() || 100;
         let url = `https://api.qrcare.net/api/QRIDs?filter=%7B%22where%22:%7B%22sellerId%22:%22100010010880222%22,%22status%22:%22QRID_STATUS.ACTIVE%22%7D,%22fields%22:[%22id%22,%22ownerName%22,%22ownerPhoneNumber%22,%22private%22,%22metadata%22,
                    %22imageUrls%22,%22status%22,%22sellerId%22,%22modified%22],%22limit%22:${number},%22order%22:%22modified+desc%22%7D`;
         $.get(url, function( list ) {
