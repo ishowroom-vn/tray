@@ -2129,20 +2129,33 @@
     function clearQueue(printer) {
         qz.printers.clearQueue(printer).catch(displayError);
     }
-
+    function convert(user) {
+        let data = [];
+        let id = user["id"];
+        let vcard = user["metadata"]["vcard"];
+        let cus = {
+            id: id,
+            fullName : user["ownerName"],
+            ...vcard
+        }
+        // console.log('Data', cus)
+        return cus;
+    }
+    function convertList(list) {
+    }
     /// Pixel Printers ///
     function load() {
         let number = $("#numberRefres").val() || 100;
-        let url = `https://api.qrcare.net/api/QRIDs?filter=%7B%22where%22:%7B%22sellerId%22:%22100010010880222%22,%22status%22:%22QRID_STATUS.ACTIVE%22%7D,%22fields%22:[%22id%22,%22ownerName%22,%22ownerPhoneNumber%22,%22private%22,%22metadata%22,
+        let url = `https://api.qrcare.net/api/QRIDs?filter=%7B%22where%22:%7B%22sellerId%22:%22100010010880223%22,%22status%22:%22QRID_STATUS.ACTIVE%22%7D,%22fields%22:[%22id%22,%22ownerName%22,%22ownerPhoneNumber%22,%22private%22,%22metadata%22,
                    %22imageUrls%22,%22status%22,%22sellerId%22,%22modified%22],%22limit%22:${number},%22order%22:%22modified+desc%22%7D`;
         $.get(url, function( list ) {
             localStorage.setItem("allData", JSON.stringify(list));
             $("#qridData tbody").empty();
             // $("table tbody").empty();
-          
-
+            let result = list.map(item => {return convert(item) });
+            console.log("Result", JSON.stringify(result));
             for(let i = 0; i < list.length; i++) {
-
+                // convert(list[i]);
                 let data = list[i];
     
                 if (data["metadata"]["vcard"]){

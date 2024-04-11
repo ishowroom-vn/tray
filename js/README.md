@@ -8,11 +8,11 @@ qz.websocket.connect().then(() => {
     let config = qz.configs.create('PDF');
     return qz.print(config, [{
         type: 'pixel',
-        format: 'html',
+        fort: 'ht,
         flavor: 'plain',
         data: '<h1>Hello JavaScript!</h1>'
     }]);
-}).then(() => {
+}).then(() => 
     return qz.websocket.disconnect();
 }).then(() => {
     // process.exit(0);
